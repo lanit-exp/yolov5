@@ -135,7 +135,8 @@ def export_onnx(model, im, file, opset, dynamic, simplify, prefix=colorstr('ONNX
     import onnx
 
     LOGGER.info(f'\n{prefix} starting export with onnx {onnx.__version__}...')
-    f = file.with_suffix('.onnx')
+    os.makedirs(save_to, exist_ok=True)
+    f = os.path.join(save_to, file.with_suffix('.onnx').name)
 
     output_names = ['output0', 'output1'] if isinstance(model, SegmentationModel) else ['output0']
     if dynamic:
@@ -477,6 +478,7 @@ def run(
         topk_all=100,  # TF.js NMS: topk for all classes to keep
         iou_thres=0.45,  # TF.js NMS: IoU threshold
         conf_thres=0.25,  # TF.js NMS: confidence threshold
+        save_to="./"  # Path to save ONNX model
 ):
     t = time.time()
     include = [x.lower() for x in include]  # to lowercase
@@ -597,6 +599,7 @@ def parse_opt():
     parser.add_argument('--topk-all', type=int, default=100, help='TF.js NMS: topk for all classes to keep')
     parser.add_argument('--iou-thres', type=float, default=0.45, help='TF.js NMS: IoU threshold')
     parser.add_argument('--conf-thres', type=float, default=0.25, help='TF.js NMS: confidence threshold')
+    parser.add_argument('--save_to', type=str, default='./', help='Path to save ONNX model')
     parser.add_argument(
         '--include',
         nargs='+',
